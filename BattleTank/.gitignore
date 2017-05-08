@@ -50,6 +50,8 @@ Binaries/*
 # Builds
 Build/*
 
+BattleTank/Content/MobileStarterContent/*
+
 # Don't ignore icon files in Build
 !Build/**/*.ico
 
