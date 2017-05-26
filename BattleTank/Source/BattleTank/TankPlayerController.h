@@ -5,9 +5,6 @@
 #include "GameFramework/PlayerController.h"
 #include "TankPlayerController.generated.h" // make sure this is last include
 
-//forward declarations
-class ATank;
-
 /**
  * 
  */
@@ -15,17 +12,20 @@ UCLASS()
 class BATTLETANK_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
+	void FoundAimingComponent(UTankAimingComponent* AimCompRef);
+
 public:
-	ATank* GetControlledTank() const;
 	virtual void Tick(float DeltaTime) override;
 	void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairXLocation = 0.5f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairYLocation = 0.33333f;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float LineTraceRange = 1000000; ///10km
 
 	//Start the tank moving barrel so that a shot would hit where crosshair intersects world

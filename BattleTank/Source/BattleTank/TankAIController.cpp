@@ -1,53 +1,38 @@
 // Copyright Steve Barnes 2017 
 
 #include "BattleTank.h"
-#include "Tank.h"
+#include "TankAimingComponent.h"
 #include "TankAIController.h"
-
-ATank* ATankAIController::GetAIControlledTank() const {
-
-	return Cast<ATank>(GetPawn());
-}
-
-ATank* ATankAIController::GetPlayerTank() const
-{
-	auto PlayerPawn = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	if (!PlayerPawn) { return nullptr; }
-	return Cast<ATank>(PlayerPawn);
-}
 
 void ATankAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	///UE_LOG(LogTemp, Warning, TEXT("We are ticking!"));
-	ATank* PlayerTank = GetPlayerTank();
-	if (PlayerTank)
-	{
-		/// TODO move towards player
 
+	auto PlayerTank = (GetWorld()->GetFirstPlayerController()->GetPawn());
+	auto ThisTank = GetPawn();
+	
+	if (ensure(PlayerTank && ThisTank))
+	{
+		//move towards player
+		MoveToActor(PlayerTank, AcceptanceRadius); // TODO check radius value
+
+		auto AimingComponent = ThisTank->FindComponentByClass<UTankAimingComponent>();
 		//Aim towards player
-		GetAIControlledTank()->AimAt(PlayerTank->GetActorLocation());
+		AimingComponent->AimAt(PlayerTank->GetActorLocation());
+		if (AimingComponent->GetFiringState() == AimStates::Ready)
+		AimingComponent->Fire();
 	}
 }
-
 
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	ATank* myAITank = Cast<ATank>(GetPawn());
-	ATank* PlayerTank = GetPlayerTank();
+	auto myAITank = GetPawn();
+	auto PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	if (myAITank) {
-		UE_LOG(LogTemp, Warning, TEXT("Found AI Tank: %s"), *(myAITank->GetName()));
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("AI Tank Not Found!"));
-	}
+	if (myAITank) { UE_LOG(LogTemp, Warning, TEXT("Found AI Tank: %s"), *(myAITank->GetName())); }
+	else { UE_LOG(LogTemp, Warning, TEXT("AI Tank Not Found!")); }
 
-	if (PlayerTank) {
-		UE_LOG(LogTemp, Warning, TEXT("Found Player Tank: %s"), *(PlayerTank->GetName()));
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Player Tank Not Found!"));
-	}
+	if (PlayerTank) { UE_LOG(LogTemp, Warning, TEXT("Found Player Tank: %s"), *(PlayerTank->GetName())); }
+	else { UE_LOG(LogTemp, Warning, TEXT("Player Tank Not Found!")); }
 }
